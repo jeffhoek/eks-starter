@@ -1,0 +1,213 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.5.2 Chrome/142.0.7444.265 Electron/39.6.1 Safari/537.36" version="29.5.2">
+  <diagram id="KjuZ4ZawSIwCNALszl2z" name="Page-1">
+    <mxGraphModel dx="1832" dy="800" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1700" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="internet" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontStyle=1;" value="Internet" vertex="1">
+          <mxGeometry height="60" width="120" x="40" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="github" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" value="&lt;b&gt;GitHub&lt;/b&gt;&lt;br&gt;Source Code&lt;br&gt;LBC IAM Policy&lt;br&gt;(main branch)" vertex="1">
+          <mxGeometry height="90" width="160" x="20" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="developer" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="&lt;b&gt;Developer&lt;/b&gt;&lt;br&gt;terraform apply&lt;br&gt;kubectl" vertex="1">
+          <mxGeometry height="80" width="120" x="40" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="tfstate" parent="1" style="shape=cylinder3;size=10;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" value="terraform.tfstate&lt;br&gt;(local file)" vertex="1">
+          <mxGeometry height="70" width="100" x="50" y="460" as="geometry" />
+        </mxCell>
+        <mxCell id="aws" parent="1" style="swimlane;startSize=30;html=1;fillColor=#FF9900;strokeColor=#d79b00;fontColor=#000000;fontSize=14;opacity=15;" value="&lt;b&gt;AWS Cloud - us-east-2&lt;/b&gt;" vertex="1">
+          <mxGeometry height="1062" width="1334" x="220" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="vpc" parent="aws" style="swimlane;startSize=25;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;" value="&lt;b&gt;VPC: 10.0.0.0/16&lt;/b&gt;" vertex="1">
+          <mxGeometry height="666" width="1153" x="20" y="51" as="geometry" />
+        </mxCell>
+        <mxCell id="pub-subnet" parent="vpc" style="swimlane;startSize=25;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=11;" value="Public Subnets (3 AZs) - 10.0.4-6.0/24" vertex="1">
+          <mxGeometry height="210" width="375" x="10" y="25" as="geometry" />
+        </mxCell>
+        <mxCell id="igw" parent="pub-subnet" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="&lt;b&gt;Internet Gateway&lt;/b&gt;" vertex="1">
+          <mxGeometry height="50" width="150" x="20" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="nat" parent="pub-subnet" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="&lt;b&gt;NAT Gateway&lt;/b&gt;&lt;br&gt;+ Elastic IP" vertex="1">
+          <mxGeometry height="60" width="150" x="20" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="rt" parent="pub-subnet" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" value="Route Tables&lt;br&gt;1 public, 3 private" vertex="1">
+          <mxGeometry height="60" width="150" x="200" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="priv-subnet" parent="vpc" style="swimlane;startSize=25;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=11;" value="Private Subnets (3 AZs) - 10.0.1-3.0/24" vertex="1">
+          <mxGeometry height="210" width="734" x="411" y="25" as="geometry" />
+        </mxCell>
+        <mxCell id="ng1" parent="priv-subnet" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" value="&lt;b&gt;Node Group 1&lt;/b&gt;&lt;br&gt;AL2023 x86_64 / t3.small&lt;br&gt;desired:2 min:1 max:3&lt;br&gt;Launch Template + ASG" vertex="1">
+          <mxGeometry height="110" width="179" x="41" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="ng2" parent="priv-subnet" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" value="&lt;b&gt;Node Group 2&lt;/b&gt;&lt;br&gt;AL2023 x86_64 / t3.small&lt;br&gt;desired:1 min:1 max:2&lt;br&gt;Launch Template + ASG" vertex="1">
+          <mxGeometry height="110" width="210" x="283" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="sg-note" parent="priv-subnet" style="text;html=1;fontStyle=2;fontSize=11;align=center;" value="Security Groups&lt;br&gt;(cluster + node SGs)" vertex="1">
+          <mxGeometry height="40" width="200" x="500" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="eks" parent="vpc" style="swimlane;startSize=25;html=1;fillColor=#cce5ff;strokeColor=#006EAF;fontStyle=1;fontSize=12;" value="&lt;b&gt;EKS Cluster - Kubernetes 1.35&lt;/b&gt;" vertex="1">
+          <mxGeometry height="402" width="1099" x="20" y="242" as="geometry" />
+        </mxCell>
+        <mxCell id="cp" parent="eks" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#cce5ff;strokeColor=#006EAF;fontSize=11;" value="&lt;b&gt;Control Plane&lt;/b&gt;&lt;br&gt;API Server (Public)&lt;br&gt;etcd&lt;br&gt;OIDC Provider&lt;br&gt;Creator: Terraform" vertex="1">
+          <mxGeometry height="120" width="170" x="15" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ksys" parent="eks" style="swimlane;startSize=25;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;" value="kube-system Namespace" vertex="1">
+          <mxGeometry height="343" width="844" x="210" y="42" as="geometry" />
+        </mxCell>
+        <mxCell id="eal" parent="ksys" style="text;html=1;fontStyle=3;align=center;fontSize=11;" value="EKS Managed Add-ons" vertex="1">
+          <mxGeometry height="20" width="170" x="10" y="32" as="geometry" />
+        </mxCell>
+        <mxCell id="pia" parent="ksys" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="&lt;b&gt;Pod Identity Agent&lt;/b&gt;&lt;br&gt;EKS Add-on&lt;br&gt;(DaemonSet)" vertex="1">
+          <mxGeometry height="80" width="165" x="10" y="58" as="geometry" />
+        </mxCell>
+        <mxCell id="ebscsi" parent="ksys" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="&lt;b&gt;EBS CSI Driver&lt;/b&gt;&lt;br&gt;EKS Add-on&lt;br&gt;Controller + DaemonSet" vertex="1">
+          <mxGeometry height="80" width="165" x="10" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="hrl" parent="ksys" style="text;html=1;fontStyle=3;align=center;fontSize=11;" value="Helm Releases" vertex="1">
+          <mxGeometry height="20" width="130" x="210" y="32" as="geometry" />
+        </mxCell>
+        <mxCell id="lbc" parent="ksys" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" value="&lt;b&gt;AWS Load Balancer&lt;br&gt;Controller&lt;/b&gt;&lt;br&gt;Helm v1.8.2&lt;br&gt;2 replicas" vertex="1">
+          <mxGeometry height="100" width="147" x="251" y="58" as="geometry" />
+        </mxCell>
+        <mxCell id="ms" parent="ksys" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" value="&lt;b&gt;Metrics Server&lt;/b&gt;&lt;br&gt;Helm v3.12.1&lt;br&gt;CPU/Memory metrics&lt;br&gt;HPA support" vertex="1">
+          <mxGeometry height="100" width="175" x="553" y="65" as="geometry" />
+        </mxCell>
+        <mxCell id="ebssa" parent="ksys" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;dashed=1;" value="ServiceAccount&lt;br&gt;ebs-csi-controller-sa" vertex="1">
+          <mxGeometry height="50" width="165" x="10" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="lbcsa" parent="ksys" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;dashed=1;" value="ServiceAccount&lt;br&gt;aws-load-balancer-controller" vertex="1">
+          <mxGeometry height="50" width="155" x="247" y="185" as="geometry" />
+        </mxCell>
+        <mxCell id="e15" edge="1" parent="vpc" source="lbc" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" target="igw" value="provisions &#xa;ALB/NLB">
+          <mxGeometry relative="1" x="0.4983" y="2" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="404" y="357" />
+              <mxPoint x="404" y="64" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="vpc" source="nat" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" target="ng1" value="internet access">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="105" y="92" />
+              <mxPoint x="295" y="92" />
+              <mxPoint x="295" y="94" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="vpc" source="cp" style="edgeStyle=orthogonalEdgeStyle;" target="ng1" value="manages">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="120" y="219" />
+              <mxPoint x="515" y="219" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="vpc" source="cp" style="edgeStyle=orthogonalEdgeStyle;" target="ng2" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="120" y="219" />
+              <mxPoint x="755" y="219" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iam" parent="aws" style="swimlane;startSize=25;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=13;" value="&lt;b&gt;IAM&lt;/b&gt;" vertex="1">
+          <mxGeometry height="251" width="1234" x="16" y="739" as="geometry" />
+        </mxCell>
+        <mxCell id="cr" parent="iam" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" value="&lt;b&gt;EKS Cluster Role&lt;/b&gt;&lt;br&gt;AmazonEKSClusterPolicy" vertex="1">
+          <mxGeometry height="70" width="178" x="32" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="nr" parent="iam" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" value="&lt;b&gt;Node Instance Role&lt;/b&gt;&lt;br&gt;AmazonEKSWorkerNodePolicy&lt;br&gt;AmazonEC2ContainerRegistryRO" vertex="1">
+          <mxGeometry height="70" width="220" x="453" y="65" as="geometry" />
+        </mxCell>
+        <mxCell id="ebsr" parent="iam" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" value="&lt;b&gt;EBS CSI Role&lt;/b&gt;&lt;br&gt;Pod Identity&lt;br&gt;AmazonEBSCSIDriverPolicy" vertex="1">
+          <mxGeometry height="70" width="190" x="234" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="lbcr" parent="iam" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" value="&lt;b&gt;LBC Role&lt;/b&gt;&lt;br&gt;Pod Identity&lt;br&gt;Custom IAM Policy&lt;br&gt;(fetched from GitHub)" vertex="1">
+          <mxGeometry height="90" width="190" x="703" y="59" as="geometry" />
+        </mxCell>
+        <mxCell id="ecr" parent="iam" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" value="&lt;b&gt;ECR&lt;/b&gt;&lt;br&gt;Container Registry&lt;br&gt;(node image pull)" vertex="1">
+          <mxGeometry height="70" width="190" x="930" y="59" as="geometry" />
+        </mxCell>
+        <mxCell id="pial1" parent="iam" style="text;html=1;fontStyle=2;align=center;fontSize=10;" value="Pod Identity Association" vertex="1">
+          <mxGeometry height="20" width="109" x="278" y="25" as="geometry" />
+        </mxCell>
+        <mxCell id="pial2" parent="iam" style="text;html=1;fontStyle=2;align=center;fontSize=10;" value="Pod Identity Association" vertex="1">
+          <mxGeometry height="20" width="108" x="754" y="25" as="geometry" />
+        </mxCell>
+        <mxCell id="e13" edge="1" parent="aws" source="nr" style="edgeStyle=orthogonalEdgeStyle;dashed=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;" target="ng1" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="579" y="784" />
+              <mxPoint x="577" y="784" />
+              <mxPoint x="577" y="645" />
+              <mxPoint x="483" y="645" />
+            </Array>
+            <mxPoint x="386" y="777" as="sourcePoint" />
+            <mxPoint x="482" y="233" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e14" edge="1" parent="aws" source="ecr" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" target="ng1" value="image pull">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1020" y="586" />
+              <mxPoint x="693" y="586" />
+              <mxPoint x="693" y="156" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="internet" style="edgeStyle=orthogonalEdgeStyle;" target="igw" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="365" y="59" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="github" style="edgeStyle=orthogonalEdgeStyle;dashed=1;startArrow=classic;startFill=1;" target="developer" value="git clone/push">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="developer" style="edgeStyle=orthogonalEdgeStyle;" target="aws" value="terraform apply">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="developer" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" target="cp" value="kubectl">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="developer" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" target="tfstate" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="github" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" target="lbcr" value="IAM policy fetch">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-4" y="194" />
+              <mxPoint x="-4" y="943" />
+              <mxPoint x="1025" y="943" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="ebssa" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" target="ebsr" value="Pod Identity">
+          <mxGeometry relative="1" x="-0.7815" y="12" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="563" y="810" />
+              <mxPoint x="565" y="810" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e11" edge="1" parent="1" source="lbcsa" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" target="lbcr" value="Pod Identity">
+          <mxGeometry relative="1" x="-0.1972" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="798" y="646" />
+              <mxPoint x="1035" y="646" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e12" edge="1" parent="1" source="cr" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" target="cp" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

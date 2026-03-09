@@ -1,0 +1,15 @@
+# Copy to terraform.tfvars and customize for each deployment
+
+region              = "us-east-2"
+cluster_name_prefix = "eks-starter"
+
+cluster_version = "1.35"
+ami_type        = "AL2023_x86_64_STANDARD"
+instance_types  = ["t3.small"]
+
+vpc_cidr        = "10.0.0.0/16"
+private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+public_subnets  = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
+
+lbc_chart_version = "1.8.2"
+eso_chart_version = "0.14.4"

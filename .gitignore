@@ -1,0 +1,21 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+!*.tfvars.example
+.terraform.lock.hcl
+
+# Secrets and credentials
+.env
+kubeconfig
+*.pem
+*.key
+
+# OS
+.DS_Store
+
+.claude/
+!.claude/settings.json
+!.claude/CLAUDE.md
+
