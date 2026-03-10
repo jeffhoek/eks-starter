@@ -6,6 +6,15 @@ Originally forked from [HashiCorp's EKS tutorial](https://developer.hashicorp.co
 
 ---
 
+## Documentation
+
+| Document | Description |
+|---|---|
+| [AWS Load Balancer Controller — Implementation](./docs/lbc-implementation.md) | Design decisions and configuration for the LBC add-on. |
+| [External Secrets Operator — Implementation](./docs/eso-implementation.md) | Design decisions and configuration for the ESO add-on. |
+
+---
+
 ## Architecture
 
 ![AWS EKS Architecture](docs/aws-eks-architecture.png)
