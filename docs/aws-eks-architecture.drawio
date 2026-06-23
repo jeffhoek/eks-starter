@@ -1,6 +1,6 @@
-<mxfile host="Electron" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.5.2 Chrome/142.0.7444.265 Electron/39.6.1 Safari/537.36" version="29.5.2">
+<mxfile host="Electron" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.5.2 Chrome/142.0.7444.265 Electron/39.6.1 Safari/537.36">
   <diagram id="KjuZ4ZawSIwCNALszl2z" name="Page-1">
-    <mxGraphModel dx="1832" dy="800" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1700" pageHeight="1000" math="0" shadow="0">
+    <mxGraphModel dx="1406" dy="749" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1700" pageHeight="1000" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -35,7 +35,7 @@
           <mxGeometry height="60" width="150" x="200" y="120" as="geometry" />
         </mxCell>
         <mxCell id="priv-subnet" parent="vpc" style="swimlane;startSize=25;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=11;" value="Private Subnets (3 AZs) - 10.0.1-3.0/24" vertex="1">
-          <mxGeometry height="210" width="734" x="411" y="25" as="geometry" />
+          <mxGeometry height="206" width="728" x="417" y="25" as="geometry" />
         </mxCell>
         <mxCell id="ng1" parent="priv-subnet" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" value="&lt;b&gt;Node Group 1&lt;/b&gt;&lt;br&gt;AL2023 x86_64 / t3.small&lt;br&gt;desired:2 min:1 max:3&lt;br&gt;Launch Template + ASG" vertex="1">
           <mxGeometry height="110" width="179" x="41" y="45" as="geometry" />
@@ -46,14 +46,14 @@
         <mxCell id="sg-note" parent="priv-subnet" style="text;html=1;fontStyle=2;fontSize=11;align=center;" value="Security Groups&lt;br&gt;(cluster + node SGs)" vertex="1">
           <mxGeometry height="40" width="200" x="500" y="60" as="geometry" />
         </mxCell>
-        <mxCell id="eks" parent="vpc" style="swimlane;startSize=25;html=1;fillColor=#cce5ff;strokeColor=#006EAF;fontStyle=1;fontSize=12;" value="&lt;b&gt;EKS Cluster - Kubernetes 1.35&lt;/b&gt;" vertex="1">
-          <mxGeometry height="402" width="1099" x="20" y="242" as="geometry" />
+        <mxCell id="eks" parent="vpc" style="swimlane;startSize=25;html=1;fillColor=#cce5ff;strokeColor=#006EAF;fontStyle=1;fontSize=12;" value="&lt;b&gt;EKS Cluster - Kubernetes 1.36&lt;/b&gt;" vertex="1">
+          <mxGeometry height="418" width="1099" x="20" y="242" as="geometry" />
         </mxCell>
         <mxCell id="cp" parent="eks" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#cce5ff;strokeColor=#006EAF;fontSize=11;" value="&lt;b&gt;Control Plane&lt;/b&gt;&lt;br&gt;API Server (Public)&lt;br&gt;etcd&lt;br&gt;OIDC Provider&lt;br&gt;Creator: Terraform" vertex="1">
           <mxGeometry height="120" width="170" x="15" y="40" as="geometry" />
         </mxCell>
         <mxCell id="ksys" parent="eks" style="swimlane;startSize=25;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;" value="kube-system Namespace" vertex="1">
-          <mxGeometry height="343" width="844" x="210" y="42" as="geometry" />
+          <mxGeometry height="358" width="844" x="210" y="42" as="geometry" />
         </mxCell>
         <mxCell id="eal" parent="ksys" style="text;html=1;fontStyle=3;align=center;fontSize=11;" value="EKS Managed Add-ons" vertex="1">
           <mxGeometry height="20" width="170" x="10" y="32" as="geometry" />
@@ -67,7 +67,7 @@
         <mxCell id="hrl" parent="ksys" style="text;html=1;fontStyle=3;align=center;fontSize=11;" value="Helm Releases" vertex="1">
           <mxGeometry height="20" width="130" x="210" y="32" as="geometry" />
         </mxCell>
-        <mxCell id="lbc" parent="ksys" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" value="&lt;b&gt;AWS Load Balancer&lt;br&gt;Controller&lt;/b&gt;&lt;br&gt;Helm v1.8.2&lt;br&gt;2 replicas" vertex="1">
+        <mxCell id="lbc" parent="ksys" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" value="&lt;b&gt;AWS Load Balancer&lt;br&gt;Controller&lt;/b&gt;&lt;br&gt;Helm v3.4.0&lt;br&gt;2 replicas" vertex="1">
           <mxGeometry height="100" width="147" x="251" y="58" as="geometry" />
         </mxCell>
         <mxCell id="ms" parent="ksys" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" value="&lt;b&gt;Metrics Server&lt;/b&gt;&lt;br&gt;Helm v3.12.1&lt;br&gt;CPU/Memory metrics&lt;br&gt;HPA support" vertex="1">
@@ -78,6 +78,18 @@
         </mxCell>
         <mxCell id="lbcsa" parent="ksys" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;dashed=1;" value="ServiceAccount&lt;br&gt;aws-load-balancer-controller" vertex="1">
           <mxGeometry height="50" width="155" x="247" y="185" as="geometry" />
+        </mxCell>
+        <mxCell id="coreaddons-label" parent="ksys" style="text;html=1;fontStyle=3;align=center;fontSize=11;" value="Core EKS Add-ons (v21: declared explicitly)" vertex="1">
+          <mxGeometry height="20" width="290" x="210" y="248" as="geometry" />
+        </mxCell>
+        <mxCell id="vpccni" parent="ksys" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" value="&lt;b&gt;Amazon VPC CNI&lt;/b&gt;&lt;br&gt;EKS Add-on&lt;br&gt;(before_compute = true)" vertex="1">
+          <mxGeometry height="70" width="165" x="210" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="kubeproxy" parent="ksys" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" value="&lt;b&gt;kube-proxy&lt;/b&gt;&lt;br&gt;EKS Add-on&lt;br&gt;(DaemonSet)" vertex="1">
+          <mxGeometry height="70" width="165" x="390" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="coredns" parent="ksys" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" value="&lt;b&gt;CoreDNS&lt;/b&gt;&lt;br&gt;EKS Add-on&lt;br&gt;(Deployment)" vertex="1">
+          <mxGeometry height="70" width="165" x="570" y="270" as="geometry" />
         </mxCell>
         <mxCell id="e15" edge="1" parent="vpc" source="lbc" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" target="igw" value="provisions &#xa;ALB/NLB">
           <mxGeometry relative="1" x="0.4983" y="2" as="geometry">
@@ -137,13 +149,14 @@
         <mxCell id="pial2" parent="iam" style="text;html=1;fontStyle=2;align=center;fontSize=10;" value="Pod Identity Association" vertex="1">
           <mxGeometry height="20" width="108" x="754" y="25" as="geometry" />
         </mxCell>
-        <mxCell id="e13" edge="1" parent="aws" source="nr" style="edgeStyle=orthogonalEdgeStyle;dashed=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;" target="ng1" value="">
+        <mxCell id="e13" edge="1" parent="aws" source="nr" style="edgeStyle=orthogonalEdgeStyle;dashed=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.006;entryY=0.636;entryDx=0;entryDy=0;entryPerimeter=0;" target="ng1" value="">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="579" y="784" />
               <mxPoint x="577" y="784" />
-              <mxPoint x="577" y="645" />
-              <mxPoint x="483" y="645" />
+              <mxPoint x="577" y="781" />
+              <mxPoint x="452" y="781" />
+              <mxPoint x="452" y="191" />
             </Array>
             <mxPoint x="386" y="777" as="sourcePoint" />
             <mxPoint x="482" y="233" as="targetPoint" />
@@ -152,8 +165,8 @@
         <mxCell id="e14" edge="1" parent="aws" source="ecr" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" target="ng1" value="image pull">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="1020" y="586" />
-              <mxPoint x="693" y="586" />
+              <mxPoint x="1020" y="522" />
+              <mxPoint x="693" y="522" />
               <mxPoint x="693" y="156" />
             </Array>
           </mxGeometry>
@@ -161,7 +174,7 @@
         <mxCell id="e1" edge="1" parent="1" source="internet" style="edgeStyle=orthogonalEdgeStyle;" target="igw" value="">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="365" y="59" />
+              <mxPoint x="320" y="59" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -199,8 +212,7 @@
           <mxGeometry relative="1" x="-0.1972" as="geometry">
             <mxPoint as="offset" />
             <Array as="points">
-              <mxPoint x="798" y="646" />
-              <mxPoint x="1035" y="646" />
+              <mxPoint x="1035" y="575" />
             </Array>
           </mxGeometry>
         </mxCell>
