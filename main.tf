@@ -32,7 +32,7 @@ locals {
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "5.8.1"
+  version = "6.6.1"
 
   name = "${local.cluster_name}-vpc"
 
@@ -57,15 +57,20 @@ module "vpc" {
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "20.8.5"
+  version = "21.19.0"
 
-  cluster_name    = local.cluster_name
-  cluster_version = var.cluster_version
+  name               = local.cluster_name
+  kubernetes_version = var.cluster_version
 
-  cluster_endpoint_public_access           = true
+  endpoint_public_access                   = true
   enable_cluster_creator_admin_permissions = true
 
-  cluster_addons = {
+  addons = {
+    # v21 sets bootstrap_self_managed_addons = false, so the default
+    # CNI/kube-proxy/coredns are no longer auto-installed — declare them.
+    vpc-cni                = { before_compute = true } # CNI must land before nodes join
+    kube-proxy             = {}
+    coredns                = {}
     eks-pod-identity-agent = {}
     aws-ebs-csi-driver     = {}
   }
@@ -73,15 +78,11 @@ module "eks" {
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
-  eks_managed_node_group_defaults = {
-    ami_type = var.ami_type
-
-  }
-
   eks_managed_node_groups = {
     one = {
       name = "node-group-1"
 
+      ami_type       = var.ami_type
       instance_types = var.instance_types
 
       min_size     = 1
@@ -92,6 +93,7 @@ module "eks" {
     two = {
       name = "node-group-2"
 
+      ami_type       = var.ami_type
       instance_types = var.instance_types
 
       min_size     = 1

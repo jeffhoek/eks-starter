@@ -25,7 +25,7 @@ Originally forked from [HashiCorp's EKS tutorial](https://developer.hashicorp.co
 
 ### VPC & Networking
 
-Uses [`terraform-aws-modules/vpc/aws`](https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest) v5.8.1.
+Uses [`terraform-aws-modules/vpc/aws`](https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest) v6.6.1.
 
 | Resource | Count | Notes |
 |---|---|---|
@@ -39,19 +39,24 @@ Uses [`terraform-aws-modules/vpc/aws`](https://registry.terraform.io/modules/ter
 
 ### EKS Cluster & Node Groups
 
-Uses [`terraform-aws-modules/eks/aws`](https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest) v20.8.5.
+Uses [`terraform-aws-modules/eks/aws`](https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest) v21.19.0.
 
 | Resource | Notes |
 |---|---|
-| EKS control plane | Public endpoint, Kubernetes 1.35 by default |
+| EKS control plane | Public endpoint, Kubernetes 1.36 by default |
 | OIDC provider | For [IAM Roles for Service Accounts (IRSA)](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html) |
 | Managed node group 1 | `node-group-1`: desired 2, min 1, max 3 |
 | Managed node group 2 | `node-group-2`: desired 1, min 1, max 2 |
 | Launch templates | One per node group |
 | Security groups | Cluster + node groups |
 | IAM roles & policies | Cluster role, node instance role |
+| [Amazon VPC CNI](https://docs.aws.amazon.com/eks/latest/userguide/managing-vpc-cni.html) add-on | Pod networking; installed before nodes join (`before_compute = true`) |
+| [`kube-proxy`](https://docs.aws.amazon.com/eks/latest/userguide/managing-kube-proxy.html) add-on | Cluster service networking |
+| [CoreDNS](https://docs.aws.amazon.com/eks/latest/userguide/managing-coredns.html) add-on | In-cluster DNS |
 | [EKS Pod Identity agent](https://docs.aws.amazon.com/eks/latest/userguide/pod-id-agent-setup.html) add-on | Installed via cluster add-on |
 | [AWS EBS CSI driver](https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html) add-on | Installed via cluster add-on |
+
+> **Module v21 note:** v21 sets `bootstrap_self_managed_addons = false`, so EKS no longer auto-installs VPC CNI, `kube-proxy`, and CoreDNS. They are declared explicitly as managed add-ons in [`main.tf`](./main.tf); omitting them leaves nodes stuck `NotReady` with no CNI.
 
 ### EBS CSI Driver — Pod Identity
 
@@ -85,7 +90,7 @@ Uses [`terraform-aws-modules/eks/aws`](https://registry.terraform.io/modules/ter
 
 | Tool | Version | Install |
 |---|---|---|
-| [Terraform](https://developer.hashicorp.com/terraform/install) | >= 1.3.2 | `brew install terraform` |
+| [Terraform](https://developer.hashicorp.com/terraform/install) | >= 1.5.7 | `brew install terraform` |
 | [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) | v2 | `brew install awscli` |
 | [kubectl](https://kubernetes.io/docs/tasks/tools/) | compatible with cluster version | `brew install kubectl` |
 
@@ -218,20 +223,64 @@ kubectl top nodes
 
 ---
 
+## Deploying with HCP Terraform
+
+The Quickstart above runs Terraform locally. This config also deploys cleanly through [HCP Terraform](https://developer.hashicorp.com/terraform/cloud-docs) (formerly Terraform Cloud) using a **VCS-driven** workspace, where state lives remotely and runs execute on HCP's runners.
+
+**1. Connect the repo and create a workspace**
+
+In your HCP Terraform org: **Settings → Version Control** → authorize the GitHub app for this repo, then create a **Version Control Workflow** workspace pointing at it (working directory = repo root).
+
+**2. Provide AWS credentials as _Environment_ variables**
+
+The `aws` provider reads the standard AWS credential chain, so these must be **Environment variables** — *not* Terraform variables, or the provider never sees them:
+
+| Key | Category | Sensitive |
+|---|---|---|
+| `AWS_ACCESS_KEY_ID` | env | no |
+| `AWS_SECRET_ACCESS_KEY` | env | **yes** |
+| `AWS_DEFAULT_REGION` | env | no |
+
+Use a **dedicated IAM user** (or, better, [OIDC dynamic credentials](https://developer.hashicorp.com/terraform/cloud-docs/workspaces/dynamic-provider-credentials/aws-configuration)) — never the AWS root account.
+
+**3. Set Terraform variables in the workspace**
+
+Because `*.tfvars` is gitignored, set overrides like `cluster_name_prefix` as **Terraform variables** in the workspace UI instead of a committed `terraform.tfvars`. Defaults in [`variables.tf`](./variables.tf) apply for anything you don't override.
+
+**4. Run and apply**
+
+A push to the tracked branch queues a plan. Keep **Apply Method = Manual apply** (Workspace → Settings → General) so you review the plan before ~80 resources — and real cost — are created, then click **Confirm & Apply**. Provisioning takes ~15–20 minutes.
+
+**5. Configure kubectl — note the differences from local**
+
+`terraform output -raw ...` in the Quickstart **does not work locally** with HCP, since state is remote. Use the known values instead — `cluster_name` equals your `cluster_name_prefix`, and the region is your `AWS_DEFAULT_REGION` (or read both from the workspace **Outputs** tab):
+
+```bash
+aws eks --region <region> update-kubeconfig --name <cluster_name_prefix>
+```
+
+Because the apply runs as the workspace's IAM identity, **that identity — not your laptop — is the cluster creator/admin** (`enable_cluster_creator_admin_permissions = true`). To get `kubectl` access, either point a named AWS profile at the same key and pass `--profile <name>` to `update-kubeconfig`, or grant your own principal an EKS [access entry](https://docs.aws.amazon.com/eks/latest/userguide/access-entries.html).
+
+**6. Teardown**
+
+Follow the [Teardown](#teardown) steps below, but run **`terraform destroy` as a destroy run from the workspace** (Settings → Destruction and Deletion → Queue destroy plan) rather than locally, since state is remote.
+
+---
+
 ## Variables
 
 | Variable | Default | Description |
 |---|---|---|
 | `region` | `us-east-2` | AWS region to deploy into |
 | `cluster_name_prefix` | `eks-starter` | Prefix for cluster and VPC names |
-| `cluster_version` | `1.35` | [Kubernetes version](https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html) |
+| `cluster_version` | `1.36` | [Kubernetes version](https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html) |
 | `ami_type` | `AL2023_x86_64_STANDARD` | [Node AMI type](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html) |
 | `instance_types` | `["t3.small"]` | EC2 instance types for both node groups |
 | `vpc_cidr` | `10.0.0.0/16` | VPC CIDR block |
 | `private_subnets` | `["10.0.1.0/24", ...]` | Private subnet CIDRs (one per AZ) |
 | `public_subnets` | `["10.0.4.0/24", ...]` | Public subnet CIDRs (one per AZ) |
-| `lbc_chart_version` | `1.8.2` | Helm chart version for the [AWS Load Balancer Controller](https://kubernetes-sigs.github.io/aws-load-balancer-controller/) |
-| `eso_chart_version` | `0.14.4` | Helm chart version for [External Secrets Operator](https://external-secrets.io/) |
+| `lbc_chart_version` | `3.4.0` | Helm chart version for the [AWS Load Balancer Controller](https://kubernetes-sigs.github.io/aws-load-balancer-controller/) |
+| `eso_chart_version` | `2.6.0` | Helm chart version for [External Secrets Operator](https://external-secrets.io/) |
 | `eso_secret_arns` | `["*"]` | AWS Secrets Manager ARN patterns ESO is permitted to read |
 
 See [`terraform.tfvars.example`](./terraform.tfvars.example) for a ready-to-copy template.
