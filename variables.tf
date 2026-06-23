@@ -34,7 +34,7 @@ variable "public_subnets" {
 variable "cluster_version" {
   description = "Kubernetes version for the EKS cluster"
   type        = string
-  default     = "1.35"
+  default     = "1.36"
 }
 
 variable "ami_type" {
@@ -52,13 +52,13 @@ variable "instance_types" {
 variable "lbc_chart_version" {
   description = "Helm chart version for the AWS Load Balancer Controller"
   type        = string
-  default     = "1.8.2"
+  default     = "3.4.0"
 }
 
 variable "eso_chart_version" {
   description = "Helm chart version for External Secrets Operator"
   type        = string
-  default     = "0.14.4"
+  default     = "2.6.0"
 }
 
 variable "eso_secret_arns" {

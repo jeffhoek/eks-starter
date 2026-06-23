@@ -68,7 +68,7 @@ resource "helm_release" "eso" {
   create_namespace = true
 
   set {
-    name  = "installCRDs"
+    name  = "crds.create"
     value = "true"
   }
 
