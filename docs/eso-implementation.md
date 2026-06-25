@@ -72,14 +72,14 @@ See the [Post-Provision](#post-provision-apply-the-clustersecretstores) section 
 
 Chart: `external-secrets` from `https://charts.external-secrets.io`
 
-Default version: `0.14.4` — the last stable release in the `0.x` series.
+Default version: `2.6.0` — chart `2.x`, the post-GA line.
 
-**v2 note:** ESO v2.0.x (released early 2026) introduced breaking changes including removal of
-unmaintained providers and changes to templating functions. Before upgrading to chart `2.x`,
-review the migration guide and update `ClusterSecretStore` / `ExternalSecret` manifests to use
-`apiVersion: external-secrets.io/v1` (promoted from `v1beta1`).
+**v2 note:** This project tracks chart `2.x` (ESO post-GA). The v2 line removed some unmaintained
+providers and changed templating functions relative to `0.x`, and promoted the CRD API from the
+pre-GA `v1beta1` to the stable `external-secrets.io/v1`. All `ClusterSecretStore` / `ExternalSecret`
+manifests below use `apiVersion: external-secrets.io/v1` accordingly.
 
-CRDs are installed as part of the Helm release (`installCRDs=true`), the recommended approach
+CRDs are installed as part of the Helm release (`crds.create=true`), the recommended approach
 for ESO. `create_namespace = true` creates the `external-secrets` namespace inline without
 needing the Kubernetes provider.
 
@@ -105,7 +105,7 @@ After `terraform apply`, apply both `ClusterSecretStore` resources once per clus
 REGION=$(terraform output -raw region)
 
 kubectl apply -f - <<EOF
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1
 kind: ClusterSecretStore
 metadata:
   name: aws-secrets-manager
@@ -116,7 +116,7 @@ spec:
       region: ${REGION}
       # No auth section — ESO uses Pod Identity credentials automatically
 ---
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1
 kind: ClusterSecretStore
 metadata:
   name: aws-ssm-parameter-store
@@ -150,7 +150,7 @@ Once the `ClusterSecretStore` is in place, create `ExternalSecret` resources in 
 **Sync individual keys from a JSON secret:**
 
 ```yaml
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: my-app-credentials
@@ -186,7 +186,7 @@ spec:
 **Sync individual SSM parameters:**
 
 ```yaml
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: my-app-ssm-params
