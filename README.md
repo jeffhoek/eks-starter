@@ -12,6 +12,7 @@ Originally forked from [HashiCorp's EKS tutorial](https://developer.hashicorp.co
 |---|---|
 | [AWS Load Balancer Controller — Implementation](./docs/lbc-implementation.md) | Design decisions and configuration for the LBC add-on. |
 | [External Secrets Operator — Implementation](./docs/eso-implementation.md) | Design decisions and configuration for the ESO add-on. |
+| [VPC CNI — NetworkPolicy Enforcement](./docs/vpc-cni-network-policy-implementation.md) | Why `NetworkPolicy` enforcement must be explicitly enabled, and how to verify it. |
 
 ---
 
@@ -50,7 +51,7 @@ Uses [`terraform-aws-modules/eks/aws`](https://registry.terraform.io/modules/ter
 | Launch templates | One per node group |
 | Security groups | Cluster + node groups |
 | IAM roles & policies | Cluster role, node instance role |
-| [Amazon VPC CNI](https://docs.aws.amazon.com/eks/latest/userguide/managing-vpc-cni.html) add-on | Pod networking; installed before nodes join (`before_compute = true`) |
+| [Amazon VPC CNI](https://docs.aws.amazon.com/eks/latest/userguide/managing-vpc-cni.html) add-on | Pod networking; installed before nodes join (`before_compute = true`); `NetworkPolicy` enforcement explicitly enabled — see [implementation notes](./docs/vpc-cni-network-policy-implementation.md) |
 | [`kube-proxy`](https://docs.aws.amazon.com/eks/latest/userguide/managing-kube-proxy.html) add-on | Cluster service networking |
 | [CoreDNS](https://docs.aws.amazon.com/eks/latest/userguide/managing-coredns.html) add-on | In-cluster DNS |
 | [EKS Pod Identity agent](https://docs.aws.amazon.com/eks/latest/userguide/pod-id-agent-setup.html) add-on | Installed via cluster add-on |
@@ -220,6 +221,22 @@ kubectl get deployment -n kube-system metrics-server
 kubectl top nodes
 ```
 > Expected: CPU and MEMORY usage listed for each node (may take ~60s after first deploy)
+
+**VPC CNI — `NetworkPolicy` enforcement enabled**
+
+`status: ACTIVE` on the add-on is not enough to confirm this — check the config value landed:
+```bash
+aws --no-cli-pager eks describe-addon \
+  --cluster-name $(terraform output -raw cluster_name) \
+  --addon-name vpc-cni \
+  --region $(terraform output -raw region) \
+  --query 'addon.configurationValues'
+```
+> Expected: `"{\"enableNetworkPolicy\":\"true\"}"`
+
+See [VPC CNI — NetworkPolicy Enforcement](./docs/vpc-cni-network-policy-implementation.md) for the
+full functional test (apply a `NetworkPolicy`, confirm a `PolicyEndpoint` is created, confirm
+traffic is actually blocked) — without it, applied `NetworkPolicy` objects are silent no-ops.
 
 ---
 

@@ -68,7 +68,15 @@ module "eks" {
   addons = {
     # v21 sets bootstrap_self_managed_addons = false, so the default
     # CNI/kube-proxy/coredns are no longer auto-installed — declare them.
-    vpc-cni                = { before_compute = true } # CNI must land before nodes join
+    vpc-cni = {
+      before_compute = true # CNI must land before nodes join
+      # NetworkPolicy enforcement ships disabled by default — the node agent
+      # runs regardless, but without this no controller watches NetworkPolicy
+      # objects or creates PolicyEndpoint CRs, so applied policies are no-ops.
+      configuration_values = jsonencode({
+        enableNetworkPolicy = "true"
+      })
+    }
     kube-proxy             = {}
     coredns                = {}
     eks-pod-identity-agent = {}
