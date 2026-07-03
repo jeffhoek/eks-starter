@@ -154,7 +154,42 @@ aws eks --region $(terraform output -raw region) update-kubeconfig \
   --name $(terraform output -raw cluster_name)
 ```
 
-**7. Verify**
+**7. Apply the ClusterSecretStores (External Secrets Operator)**
+
+`terraform apply` installs ESO itself, but not the `ClusterSecretStore` resources — those are CRDs
+that must be applied after the ESO Helm release exists. Without this step, ESO is running but
+`ExternalSecret` objects have nothing to reference.
+
+```bash
+REGION=$(terraform output -raw region)
+
+kubectl apply -f - <<EOF
+apiVersion: external-secrets.io/v1
+kind: ClusterSecretStore
+metadata:
+  name: aws-secrets-manager
+spec:
+  provider:
+    aws:
+      service: SecretsManager
+      region: ${REGION}
+---
+apiVersion: external-secrets.io/v1
+kind: ClusterSecretStore
+metadata:
+  name: aws-ssm-parameter-store
+spec:
+  provider:
+    aws:
+      service: ParameterStore
+      region: ${REGION}
+EOF
+```
+
+See [External Secrets Operator — Implementation](./docs/eso-implementation.md#post-provision-apply-the-clustersecretstores)
+for why these have no `auth` section (Pod Identity) and for `ExternalSecret` usage examples.
+
+**8. Verify**
 
 Run these checks in order after `terraform apply` completes. Each builds on the previous.
 
@@ -210,6 +245,14 @@ aws --no-cli-pager eks list-pod-identity-associations --cluster-name $(terraform
   --query 'associations[?serviceAccount==`aws-load-balancer-controller`]'
 ```
 > Expected: one entry with namespace=kube-system
+
+**External Secrets Operator — ClusterSecretStores ready**
+
+Requires step 7 (Apply the ClusterSecretStores) to have been run first.
+```bash
+kubectl get clustersecretstore
+```
+> Expected: `aws-secrets-manager` and `aws-ssm-parameter-store`, both `STATUS=Valid READY=True`
 
 **metrics-server — serving resource metrics**
 ```bash
