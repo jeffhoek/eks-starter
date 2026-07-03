@@ -12,6 +12,7 @@ Originally forked from [HashiCorp's EKS tutorial](https://developer.hashicorp.co
 |---|---|
 | [AWS Load Balancer Controller — Implementation](./docs/lbc-implementation.md) | Design decisions and configuration for the LBC add-on. |
 | [External Secrets Operator — Implementation](./docs/eso-implementation.md) | Design decisions and configuration for the ESO add-on. |
+| [VPC CNI — NetworkPolicy Enforcement](./docs/vpc-cni-network-policy-implementation.md) | Why `NetworkPolicy` enforcement must be explicitly enabled, and how to verify it. |
 
 ---
 
@@ -50,7 +51,7 @@ Uses [`terraform-aws-modules/eks/aws`](https://registry.terraform.io/modules/ter
 | Launch templates | One per node group |
 | Security groups | Cluster + node groups |
 | IAM roles & policies | Cluster role, node instance role |
-| [Amazon VPC CNI](https://docs.aws.amazon.com/eks/latest/userguide/managing-vpc-cni.html) add-on | Pod networking; installed before nodes join (`before_compute = true`) |
+| [Amazon VPC CNI](https://docs.aws.amazon.com/eks/latest/userguide/managing-vpc-cni.html) add-on | Pod networking; installed before nodes join (`before_compute = true`); `NetworkPolicy` enforcement explicitly enabled — see [implementation notes](./docs/vpc-cni-network-policy-implementation.md) |
 | [`kube-proxy`](https://docs.aws.amazon.com/eks/latest/userguide/managing-kube-proxy.html) add-on | Cluster service networking |
 | [CoreDNS](https://docs.aws.amazon.com/eks/latest/userguide/managing-coredns.html) add-on | In-cluster DNS |
 | [EKS Pod Identity agent](https://docs.aws.amazon.com/eks/latest/userguide/pod-id-agent-setup.html) add-on | Installed via cluster add-on |
@@ -153,7 +154,42 @@ aws eks --region $(terraform output -raw region) update-kubeconfig \
   --name $(terraform output -raw cluster_name)
 ```
 
-**7. Verify**
+**7. Apply the ClusterSecretStores (External Secrets Operator)**
+
+`terraform apply` installs ESO itself, but not the `ClusterSecretStore` resources — those are CRDs
+that must be applied after the ESO Helm release exists. Without this step, ESO is running but
+`ExternalSecret` objects have nothing to reference.
+
+```bash
+REGION=$(terraform output -raw region)
+
+kubectl apply -f - <<EOF
+apiVersion: external-secrets.io/v1
+kind: ClusterSecretStore
+metadata:
+  name: aws-secrets-manager
+spec:
+  provider:
+    aws:
+      service: SecretsManager
+      region: ${REGION}
+---
+apiVersion: external-secrets.io/v1
+kind: ClusterSecretStore
+metadata:
+  name: aws-ssm-parameter-store
+spec:
+  provider:
+    aws:
+      service: ParameterStore
+      region: ${REGION}
+EOF
+```
+
+See [External Secrets Operator — Implementation](./docs/eso-implementation.md#post-provision-apply-the-clustersecretstores)
+for why these have no `auth` section (Pod Identity) and for `ExternalSecret` usage examples.
+
+**8. Verify**
 
 Run these checks in order after `terraform apply` completes. Each builds on the previous.
 
@@ -210,6 +246,14 @@ aws --no-cli-pager eks list-pod-identity-associations --cluster-name $(terraform
 ```
 > Expected: one entry with namespace=kube-system
 
+**External Secrets Operator — ClusterSecretStores ready**
+
+Requires step 7 (Apply the ClusterSecretStores) to have been run first.
+```bash
+kubectl get clustersecretstore
+```
+> Expected: `aws-secrets-manager` and `aws-ssm-parameter-store`, both `STATUS=Valid READY=True`
+
 **metrics-server — serving resource metrics**
 ```bash
 kubectl get deployment -n kube-system metrics-server
@@ -220,6 +264,22 @@ kubectl get deployment -n kube-system metrics-server
 kubectl top nodes
 ```
 > Expected: CPU and MEMORY usage listed for each node (may take ~60s after first deploy)
+
+**VPC CNI — `NetworkPolicy` enforcement enabled**
+
+`status: ACTIVE` on the add-on is not enough to confirm this — check the config value landed:
+```bash
+aws --no-cli-pager eks describe-addon \
+  --cluster-name $(terraform output -raw cluster_name) \
+  --addon-name vpc-cni \
+  --region $(terraform output -raw region) \
+  --query 'addon.configurationValues'
+```
+> Expected: `"{\"enableNetworkPolicy\":\"true\"}"`
+
+See [VPC CNI — NetworkPolicy Enforcement](./docs/vpc-cni-network-policy-implementation.md) for the
+full functional test (apply a `NetworkPolicy`, confirm a `PolicyEndpoint` is created, confirm
+traffic is actually blocked) — without it, applied `NetworkPolicy` objects are silent no-ops.
 
 ---
 
